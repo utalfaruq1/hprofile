@@ -38,7 +38,7 @@ jobs:
 
   BUILD_AND_PUBLISH:
     needs: Testing
-    runs-on: ubuntu_latest
+    runs-on: ubuntu-latest
     steps:
       - name: code checkout
         uses: actions/checkout@v4
