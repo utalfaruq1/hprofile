@@ -82,7 +82,6 @@
     "memory": "2048",
     "registeredAt": "2026-04-24T05:01:11.169Z",
     "registeredBy": "arn:aws:iam::713669223249:user/devopsprojects",
-    "enableFaultInjection": false,
     "tags": [
         {
             "key": "Name",
