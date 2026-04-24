@@ -1,5 +1,7 @@
 name: Hprofile Actions
 on: workflow_dispatch
+env:
+  AWS_REGION: us-east-1
 jobs:
   Testing:
     runs-on: ubuntu-latest
@@ -34,4 +36,29 @@ jobs:
            -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
            -Dsonar.java.binaries=target/test-classes/com/visualpathit/account 
 
+  BUILD_AND_PUBLISH:
+    needs: Testing
+    runs-on: ubuntu_latest
+    steps:
+      - name: code checkout
+        uses: actions/checkout@v4
+        
+      - name: update application.properties file
+        run: |
+          sed -i "s/^jdbc.username=.*/jdbc.username=${{ secrets.RDS_USER }}/" src/main/resources/application.properties
+          sed -i "s/^jdbc.password=.*/jdbc.password=${{ secrets.RDS_PASS }}/" src/main/resources/application.properties
+          sed -i "s/db01/${{ secrets.RDS_ENDPOINT }}/" src/main/resources/application.properties
       
+      - name: Build and upload image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          registry: ${{ secrets.REGISTRY }}
+          repo: actapp
+          region: ${{ env.AWS_REGION }}
+          tags: latest,${{ github.run_number }}
+          daemon_off: false
+          dockerfile: ./Dockerfile
+          context: ./
+          
